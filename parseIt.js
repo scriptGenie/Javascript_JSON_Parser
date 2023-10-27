@@ -115,14 +115,13 @@ function parseIt() {
             function checkPattern() {
 
                 // pattern - opening quote (") - must be start of string (^)
-                    // any alphanumeric char, any number of times, followed by an optional space 0 or 1 times
+                    // any alphanumeric char || hyphen (-), any number of times, followed by an optional space 0 or 1 times - repeat any number of times
                         // closing quote (")
                             // colon (:)
                                 // space
-                                    // any alphanumeric char, any number of times, followed by an optional space 0 or 1 times
-                                        // closing quote (") - must be end of string ($)
-                // var pattern = RegExp(/^"(\w* ?)*": "?(\w* ?)*"?/);
-                var pattern = RegExp(/^"(\w* ?)*": (true|false|null|"(\w* ?)*"|[0-9])/);
+                                    // true || false || null || opening quote (") (any alphanumeric char, any number of times, optional space) repeat any number of times closing quote (") || any digits || array or object opening ({, [) with (any number of alphanumeric chars or non-alphanumeric chars, optional space) any number of times inside, array or object closing (}, ])
+                                        // I'm so sorry for that line ^^^
+                var pattern = RegExp(/^"((\w|-)* ?)*": (true|false|null|"(\w* ?)*"|[0-9]|({|\[)((\w|\W)* ?)*(}|\]))/);
 
                 var resultsOfAllChecks = new Set([]);
 
