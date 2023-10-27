@@ -1,3 +1,6 @@
+// TODO: Add error handling for invalid inputs
+
+
 const fs = require('fs');
 
 
@@ -13,19 +16,16 @@ function parseIt() {
     var fileNames = [];
 
 
-    // // console.log(`process.argv.length: ` + process.argv.length)
-
-
     // if no filename provided
     if (process.argv[2] == undefined) {
-        // console.log('Use -h for help.')
+        console.log('Use -h for help.')
         return 1;
     };
 
 
+    //help
     const helpCommand = process.argv[2];
 
-    //help
     if (['-h', '--help'].includes(helpCommand)) {
         
                     // ansi escape code - bold
@@ -40,6 +40,7 @@ function parseIt() {
     };
 
 
+    // grab arguments ()
     // skip first two items in process.argv
     for (let i = 2; i < process.argv.length; i++) {
         fileNames.push(process.argv[i]);
@@ -57,19 +58,18 @@ function parseIt() {
             var linesInObject = allFileContents.split(/\r?\n/);
             var cleanLines = [];
 
-            console.log('START - linesInObject length: ' + linesInObject.length)
-            console.log()
 
             for (let p = 0; p < linesInObject.length; p++) {
-                //console.log(p)
 
                 let currentLine = linesInObject[p].trim();
-                //console.log(currentLine)
 
                 if (currentLine != '') {
                     cleanLines.push(currentLine);
                 };
             };
+
+            console.log('START - cleanLines length: ' + cleanLines.length)
+            console.log()
 
 
             // weed out blank files
@@ -90,53 +90,29 @@ function parseIt() {
 
             // check first and last char match curly braces
             function checkCurlyBraces() {
-
-                console.log('BRACES - cleanLines length: ' + cleanLines.length)
  
                 var firstChar = cleanLines[0];
                 firstChar = firstChar[0];
-    
-                // var lastCharSingle = cleanLines[cleanLines.length - 1];
-                // lastCharSingle = lastCharSingle[lastCharSingle.length - 1];
-    
-                // var lastCharMulti = cleanLines[cleanLines.length - 1];
-                // lastCharMulti = lastCharMulti[lastCharMulti.length - 1];
-    
+        
                 var lastChar = cleanLines[cleanLines.length - 1];
                 lastChar = lastChar[lastChar.length - 1];
 
-                if (cleanLines.length == 1) {    
-                    singleLine = true;
+
+                // check first and last char
+                if (firstChar == '{' && lastChar == '}') {
+                    console.log('first && last char valid');
+                    console.log()
+                } else {
+                    console.log('first || last char invalid');
+                    console.log()
+                    return false;
                 };
 
-
-                    // if single line check first and last char
-                    if (firstChar == '{' && lastChar == '}') {
-                        console.log('VALID JSON OBJECT - BRACES');
-                    } else {
-                        console.log('INVALID JSON OBJECT - BRACES');
-                        return false;
-                    };
-
-                // } else if (cleanLines.length > 1) {
-                    
-                //     singleLine = false;
-
-                //     // if more than one line in object check for first char on first line, and last char on last line
-                //     if (firstChar == '{' && lastCharMulti == '}') {
-                //         console.log('VALID JSON OBJECT - MULTI');
-                //     } else {
-                //         console.log('INVALID JSON OBJECT - MULTI');
-                //         return false;
-                //     };
-                    
-                // };
             };
 
 
             // check contents of object against base pattern
             function checkPattern() {
-
 
                 // pattern - opening quote (") - must be start of string (^)
                     // any alphanumeric char, any number of times, followed by an optional space 0 or 1 times
@@ -145,20 +121,33 @@ function parseIt() {
                                 // space
                                     // any alphanumeric char, any number of times, followed by an optional space 0 or 1 times
                                         // closing quote (") - must be end of string ($)
-                var pattern = RegExp(/^"(\w* ?)*": "?(\w* ?)*"?/);
-                
-                console.log('ISSUE - cleanLines length: ' + cleanLines.length)
-                console.log(cleanLines)
-                console.log()
+                // var pattern = RegExp(/^"(\w* ?)*": "?(\w* ?)*"?/);
+                var pattern = RegExp(/^"(\w* ?)*": (true|false|null|"(\w* ?)*"|[0-9])/);
 
                 var resultsOfAllChecks = new Set([]);
 
+
+                if (cleanLines.length == 1) {   
+                    singleLine = true;
+                    var contents = cleanLines[0].slice(1, -1);
+
+                    if (pattern.test(contents) || cleanLines[0] == '{}') {
+                        //console.log('worked - single')
+                        resultsOfAllChecks.add(true);
+                    } else {
+                        //console.log(`didn't worked - single`)
+                        resultsOfAllChecks.add(false);
+                    };
+                    
+                };
+
+
                 for (let n = 1; n < cleanLines.length - 1; n++) {
 
-                    if (singleLine) {
-                        var contents = cleanLines[n].slice(1, -1);
-                    } else {
+                    if (!singleLine) {
+
                         var contents = cleanLines[n].slice(0, cleanLines[n].length);
+
                     };
 
 
@@ -177,7 +166,14 @@ function parseIt() {
                     };
 
                 };
-                console.log(`resultsOfAllChecks:               ${Array.from(resultsOfAllChecks)}`)
+
+                // if resultsOfAllChecks includes false this would be true, we invert it to display false when false is present
+                console.log()
+                console.log(`>>> All Checks Are True:    ${String(!resultsOfAllChecks.has(false)).toUpperCase()} <<<`)
+                console.log()
+                console.log()
+                console.log()
+                console.log('------------------')
             };
             
 
