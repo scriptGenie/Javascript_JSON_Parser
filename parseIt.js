@@ -105,7 +105,7 @@ function parseIt() {
                 var lastChar = cleanLines[cleanLines.length - 1];
                 lastChar = lastChar[lastChar.length - 1];
 
-                if (cleanLines.length = 1) {    
+                if (cleanLines.length == 1) {    
                     singleLine = true;
                 };
 
